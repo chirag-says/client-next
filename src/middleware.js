@@ -3,60 +3,26 @@ import { NextResponse } from 'next/server';
 /**
  * Next.js Middleware for Route Protection
  * 
- * This is a FIRST LINE of defense only — it checks for the presence of auth cookies.
- * The actual authentication validation still happens client-side via AuthContext.
+ * DISABLED: Cookie-based middleware auth check is not possible when the frontend
+ * and backend are on different domains (e.g., staging.dealdirect.in vs 
+ * backend-staging.dealdirect.in). The 'user_session' cookie is scoped to the 
+ * backend domain and is invisible to the frontend middleware.
  * 
- * If no auth cookie is found, the user is redirected to /login with the original path
- * stored as a query parameter so they can be redirected back after login.
+ * Auth protection is fully handled client-side via AuthContext, which:
+ * - Calls /api/users/me with credentials on mount
+ * - Redirects to /login if not authenticated
+ * - Guards each protected page component individually
+ * 
+ * TO RE-ENABLE: Set the backend cookie domain to '.dealdirect.in' (shared parent)
+ * so both frontend and backend can access the same cookie. Then uncomment the
+ * auth check logic below.
  */
 
-// Routes that require authentication
-const PROTECTED_PATHS = [
-    '/profile',
-    '/saved-properties',
-    '/notifications',
-    '/agreements',
-    '/add-property',
-    '/edit-property',
-    '/my-properties',
-];
-
 export function middleware(request) {
-    const { pathname } = request.nextUrl;
-
-    // Check if the path is protected
-    const isProtected = PROTECTED_PATHS.some(
-        (path) => pathname === path || pathname.startsWith(path + '/')
-    );
-
-    if (!isProtected) {
-        return NextResponse.next();
-    }
-
-    // Check for auth cookie — the backend sets it as 'user_session'
-    // (defined in backend/middleware/authUser.js → COOKIE_CONFIG.name)
-    const authToken = request.cookies.get('user_session');
-
-    if (!authToken) {
-        // No auth cookie found — redirect to login with return URL
-        const loginUrl = new URL('/login', request.url);
-        loginUrl.searchParams.set('from', pathname);
-        return NextResponse.redirect(loginUrl);
-    }
-
-    // Cookie exists — let the request proceed
-    // (The actual token validation happens server-side on API calls)
+    // Pass through all requests — auth is handled client-side by AuthContext
     return NextResponse.next();
 }
 
 export const config = {
-    matcher: [
-        '/profile/:path*',
-        '/saved-properties/:path*',
-        '/notifications/:path*',
-        '/agreements/:path*',
-        '/add-property/:path*',
-        '/edit-property/:path*',
-        '/my-properties/:path*',
-    ],
+    matcher: [],
 };
