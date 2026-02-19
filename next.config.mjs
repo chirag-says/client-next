@@ -2,10 +2,6 @@ import { withSentryConfig } from "@sentry/nextjs";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // PRODUCTION: Standalone output for Hostinger Node.js hosting
-  // Creates a self-contained build that doesn't need full node_modules
-  output: 'standalone',
-
   // Security: Don't expose Next.js in headers
   poweredByHeader: false,
 
@@ -34,9 +30,6 @@ const nextConfig = {
       },
     ],
   },
-
-  // Prevent Sentry from causing bundling issues in standalone mode
-  serverExternalPackages: ['@sentry/nextjs'],
 };
 
 export default withSentryConfig(
