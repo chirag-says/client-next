@@ -36,7 +36,13 @@ export function OrganizationJsonLd() {
             postalCode: '410210',
             addressCountry: 'IN',
         },
-        sameAs: [],
+        sameAs: [
+            'https://www.facebook.com/dealdirect.in',
+            'https://www.instagram.com/dealdirect.in',
+            'https://twitter.com/dealdirect_in',
+            'https://www.linkedin.com/company/dealdirect',
+            'https://www.youtube.com/@dealdirect',
+        ],
     };
 
     return (

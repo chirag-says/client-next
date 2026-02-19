@@ -2,7 +2,9 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import api from "../utils/api";
+
 import {
     AiOutlineDollarCircle,
     AiOutlineHeart
@@ -87,11 +89,11 @@ const formatCategoryDisplay = (name) => {
     return value || "Property";
 };
 
-const HomeContent = () => {
-    const [properties, setProperties] = useState([]);
-    const [categories, setCategories] = useState([]);
+const HomeContent = ({ initialProperties = [], initialCategories = [], initialPropertyTypes = [], initialLatestPosts = [] }) => {
+    const [properties] = useState(initialProperties);
+    const [categories] = useState(initialCategories);
     const [subcategories, setSubcategories] = useState([]);
-    const [propertyTypeOptions, setPropertyTypeOptions] = useState([]);
+    const [propertyTypeOptions] = useState(initialPropertyTypes);
     const [filters, setFilters] = useState({
         search: "",
         category: "",
@@ -131,40 +133,8 @@ const HomeContent = () => {
         return `${API_BASE}/uploads/${img}`;
     };
 
-    useEffect(() => {
-        (async () => {
-            try {
-                const response = await api.get('/properties/property-list');
-                setProperties(response.data.data || []);
-            } catch (error) {
-                console.error("Error loading data:", error);
-            }
-        })();
-    }, []);
-
-    useEffect(() => {
-        const fetchCategories = async () => {
-            try {
-                const res = await api.get('/categories/list-category');
-                setCategories(res.data.data || res.data || []);
-            } catch (error) {
-                console.error("Error fetching categories:", error);
-            }
-        };
-        fetchCategories();
-    }, []);
-
-    useEffect(() => {
-        const fetchPropertyTypes = async () => {
-            try {
-                const res = await api.get('/propertyTypes/list-propertytype');
-                setPropertyTypeOptions(res.data.data || res.data || []);
-            } catch (error) {
-                console.error("Error fetching property types:", error);
-            }
-        };
-        fetchPropertyTypes();
-    }, []);
+    // Properties, categories, and property types are now pre-fetched on the server
+    // and passed via props. Only subcategories are fetched client-side on filter change.
 
     useEffect(() => {
         const fetchSubcategories = async () => {
@@ -224,12 +194,12 @@ const HomeContent = () => {
                         <p className="text-gray-500 text-lg text-center py-12 bg-gray-50 rounded-xl border border-dashed border-gray-200">No popular properties available right now.</p>
                     ) : (
                         <div className="relative group">
-                            <button onClick={() => scroll('left')} className="absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white backdrop-blur-sm rounded-full shadow-xl flex items-center justify-center text-gray-800 hover:text-red-600 transition-all border border-gray-100 opacity-0 group-hover:opacity-100">
-                                <FaChevronLeft className="text-lg" />
+                            <button onClick={() => scroll('left')} className="absolute -left-2 sm:-left-4 top-1/2 -translate-y-1/2 z-10 w-8 h-8 sm:w-10 sm:h-10 bg-white backdrop-blur-sm rounded-full shadow-xl flex items-center justify-center text-gray-800 hover:text-red-600 transition-all border border-gray-100 opacity-0 group-hover:opacity-100">
+                                <FaChevronLeft className="text-xs sm:text-sm" />
                             </button>
 
-                            <button onClick={() => scroll('right')} className="absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white backdrop-blur-sm rounded-full shadow-xl flex items-center justify-center text-gray-800 hover:text-red-600 transition-all border border-gray-100 opacity-0 group-hover:opacity-100">
-                                <FaChevronRight className="text-lg" />
+                            <button onClick={() => scroll('right')} className="absolute -right-2 sm:-right-4 top-1/2 -translate-y-1/2 z-10 w-8 h-8 sm:w-10 sm:h-10 bg-white backdrop-blur-sm rounded-full shadow-xl flex items-center justify-center text-gray-800 hover:text-red-600 transition-all border border-gray-100 opacity-0 group-hover:opacity-100">
+                                <FaChevronRight className="text-xs sm:text-sm" />
                             </button>
 
                             <div ref={scrollRef} className="flex gap-6 overflow-x-auto pb-8 pt-2 snap-x snap-mandatory scrollbar-hide px-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
@@ -278,7 +248,7 @@ const HomeContent = () => {
             </section>
 
             {/* 🛠 How Deal Direct Works Section */}
-            <section className="py-12 bg-white relative overflow-hidden">
+            <section className="py-16 bg-white relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-96 h-96 bg-blue-100/50 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
                 <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-100/50 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
 
@@ -291,7 +261,7 @@ const HomeContent = () => {
                     </p>
                 </div>
 
-                <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10 px-6 relative z-10">
+                <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10 px-6 pt-12 pb-4 relative z-10">
                     <div className="group relative bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-blue-200 hover:-translate-y-2">
                         <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-20 h-20 flex items-center justify-center bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-xl text-4xl text-white group-hover:scale-110 transition-transform duration-300">
                             <FaSearch />
@@ -405,8 +375,100 @@ const HomeContent = () => {
                     </div>
                 </div>
             </section>
+
+            {/* Latest from Blog */}
+            <LatestBlogSection initialPosts={initialLatestPosts} />
         </div>
     );
 };
+
+
+// ============================================
+// LATEST BLOG SECTION
+// ============================================
+
+function LatestBlogSection({ initialPosts = [] }) {
+    const posts = initialPosts;
+    const loading = false;
+
+    if (!loading && posts.length === 0) return null;
+
+    return (
+        <section className="py-16 bg-gray-50">
+            <div className="max-w-6xl mx-auto px-6">
+                <div className="flex items-center justify-between mb-10">
+                    <div>
+                        <span className="text-blue-600 text-sm font-semibold uppercase tracking-widest">Knowledge Base</span>
+                        <h2 className="text-3xl font-extrabold text-gray-900 mt-1">Latest from Our Blog</h2>
+                    </div>
+                    <Link
+                        href="/blog"
+                        className="hidden sm:inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 font-semibold text-sm transition-colors"
+                    >
+                        View all posts →
+                    </Link>
+                </div>
+
+                {loading ? (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        {[...Array(3)].map((_, i) => (
+                            <div key={i} className="bg-white rounded-2xl overflow-hidden shadow-md animate-pulse">
+                                <div className="h-44 bg-gray-200" />
+                                <div className="p-5 space-y-3">
+                                    <div className="h-4 bg-gray-200 rounded w-3/4" />
+                                    <div className="h-3 bg-gray-200 rounded w-full" />
+                                    <div className="h-3 bg-gray-200 rounded w-5/6" />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        {posts.map((post) => {
+                            const date = post.publishedAt
+                                ? new Date(post.publishedAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+                                : '';
+                            return (
+                                <Link key={post._id} href={`/blog/${post.slug}`} className="group block">
+                                    <article className="bg-white rounded-2xl overflow-hidden shadow-md border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                                        <div className="relative h-44 bg-gradient-to-br from-slate-700 to-blue-800 overflow-hidden">
+                                            {post.coverImage ? (
+                                                <img src={post.coverImage} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90" />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center">
+                                                    <span className="text-5xl opacity-20">📝</span>
+                                                </div>
+                                            )}
+                                            <div className="absolute top-3 left-3">
+                                                <span className="bg-blue-100 text-blue-700 text-xs font-semibold px-2.5 py-1 rounded-full">{post.category}</span>
+                                            </div>
+                                        </div>
+                                        <div className="p-5">
+                                            <h3 className="font-bold text-gray-900 text-sm group-hover:text-blue-600 transition-colors mb-2 line-clamp-2 leading-snug">
+                                                {post.title}
+                                            </h3>
+                                            <p className="text-gray-500 text-xs line-clamp-2 mb-3">{post.excerpt}</p>
+                                            <div className="flex items-center gap-3 text-xs text-gray-400">
+                                                <span>{date}</span>
+                                                <span>·</span>
+                                                <span>{post.readTime} min read</span>
+                                            </div>
+                                        </div>
+                                    </article>
+                                </Link>
+                            );
+                        })}
+                    </div>
+                )}
+
+                <div className="text-center mt-8 sm:hidden">
+                    <Link href="/blog" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 font-semibold text-sm">
+                        View all posts →
+                    </Link>
+                </div>
+            </div>
+        </section>
+    );
+}
 
 export default HomeContent;

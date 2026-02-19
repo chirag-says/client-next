@@ -2,8 +2,8 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
+
 import {
   AiOutlineMail,
   AiOutlinePhone,
@@ -62,17 +62,14 @@ const Footer = () => {
   const cities = ["Mumbai", "Delhi", "Bangalore", "Pune", "Hyderabad", "Chennai"];
 
   const socialLinks = [
-    { icon: <AiOutlineFacebook />, name: "Facebook", url: "https://facebook.com" },
-    { icon: <AiOutlineTwitter />, name: "Twitter", url: "https://twitter.com" },
-    { icon: <AiOutlineInstagram />, name: "Instagram", url: "https://instagram.com" },
-    { icon: <AiOutlineYoutube />, name: "Youtube", url: "https://youtube.com" }
+    { icon: <AiOutlineFacebook />, name: "Facebook", url: "https://facebook.com/dealdirect" },
+    { icon: <AiOutlineTwitter />, name: "Twitter", url: "https://twitter.com/dealdirect" },
+    { icon: <AiOutlineInstagram />, name: "Instagram", url: "https://instagram.com/dealdirect" },
+    { icon: <AiOutlineYoutube />, name: "Youtube", url: "https://youtube.com/@dealdirect" }
   ];
 
   return (
     <footer className="bg-slate-950 text-white pt-16 pb-8 border-t border-slate-900">
-      {/* Toast Container for notifications */}
-      <ToastContainer position="bottom-right" theme="dark" />
-
       <div className="max-w-7xl mx-auto px-6">
 
         {/* Top Section */}
@@ -100,12 +97,15 @@ const Footer = () => {
                 <span>+91 1800-123-4567</span>
               </a>
               <div className="flex items-start gap-3">
-                <AiOutlineEnvironment className="text-red-500 text-lg flex-shrink-0 mt-1" />
-                <span>
-                  Agrawal Business Network LLP<br />
-                  129, Growmore tower sector 2, plot no 5,<br />
-                  kharghar, Navi Mumbai 410210
-                </span>
+                <AiOutlineEnvironment className="text-red-500 text-lg flex-shrink-0 mt-0.5" />
+                <div className="leading-relaxed">
+                  <span className="font-medium text-gray-200">Agrawal Business Network LLP</span>
+                  <p className="text-gray-400 mt-1">
+                    129, Growmore Tower,<br />
+                    Sector 2, Plot No. 5,<br />
+                    Kharghar, Navi Mumbai 410210
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -156,6 +156,7 @@ const Footer = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full px-4 py-3 rounded-xl bg-slate-900 text-white text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-600 border border-slate-800 transition-all"
+                  required
                 />
                 <button
                   type="submit"

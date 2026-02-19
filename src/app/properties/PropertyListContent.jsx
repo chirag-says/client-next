@@ -26,7 +26,7 @@ import {
   FaLightbulb,
   FaSearchPlus,
 } from "react-icons/fa";
-import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents, Circle } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents, Circle, ZoomControl } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
@@ -284,12 +284,12 @@ const SkeletonCard = () => (
   </div>
 );
 
-const PropertyPage = () => {
+const PropertyPage = ({ initialProperties = [], initialCategories = [] }) => {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const [properties, setProperties] = useState([]);
+  const [properties, setProperties] = useState(initialProperties);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState(initialFilters);
   const [propertyTypes, setPropertyTypes] = useState([]);
@@ -298,6 +298,7 @@ const PropertyPage = () => {
   const [hoveredProperty, setHoveredProperty] = useState(null);
   const [interestedIds, setInterestedIds] = useState(() => new Set());
   const [interestLoadingIds, setInterestLoadingIds] = useState(() => new Set());
+  const compareModalRef = useRef(null); // Ref for auto-scroll
   const [compareIds, setCompareIds] = useState([]); // property IDs selected for comparison
   const [showCompareModal, setShowCompareModal] = useState(false);
   const [compareBaseType, setCompareBaseType] = useState(null); // propertyTypeName string for current comparison group
@@ -394,6 +395,13 @@ const PropertyPage = () => {
   };
 
   useEffect(() => { window.scrollTo({ top: 0, left: 0, behavior: "auto" }); }, []);
+
+  // Auto-scroll to top of compare modal when opened (Issue 14)
+  useEffect(() => {
+    if (showCompareModal && compareModalRef.current) {
+      compareModalRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [showCompareModal]);
 
   const buildDefaultSearchName = () => {
     const parts = [];
@@ -524,17 +532,26 @@ const PropertyPage = () => {
   useEffect(() => {
     const fetchAllData = async () => {
       try {
-        setLoading(true);
+        // Only fetch if no server-provided data
+        const needsProperties = initialProperties.length === 0;
+        setLoading(needsProperties);
+
         const [propsRes, ptRes] = await Promise.all([
-          api.get('/properties/property-list'),
+          needsProperties ? api.get('/properties/property-list') : Promise.resolve(null),
           api.get('/propertyTypes/list-propertytype'),
         ]);
 
-        const propsData = propsRes.data.data || [];
-        setProperties(propsData);
+        if (propsRes) {
+          const propsData = propsRes.data.data || [];
+          setProperties(propsData);
+          const uniqueCities = [...new Set(propsData.map(p => p.address?.city).filter(Boolean))];
+          setCities(uniqueCities);
+        } else {
+          // Use server-provided data for cities
+          const uniqueCities = [...new Set(initialProperties.map(p => p.address?.city).filter(Boolean))];
+          setCities(uniqueCities);
+        }
         setPropertyTypes(ptRes.data.data || ptRes.data || []);
-        const uniqueCities = [...new Set(propsData.map(p => p.address?.city).filter(Boolean))];
-        setCities(uniqueCities);
 
       } catch (err) {
         console.error("Error fetching data:", err);
@@ -801,41 +818,41 @@ const PropertyPage = () => {
 
     const filteredIds = new Set(filteredProperties.map(p => p._id));
     const query = (filters.search || "").toLowerCase();
-    
+
     // Get the category/type context from current filters or filtered results
-    const currentCategory = filters.propertyType 
+    const currentCategory = filters.propertyType
       ? propertyTypes.find(pt => String(pt._id) === String(filters.propertyType))?.name?.toLowerCase() || ""
       : "";
-    
+
     // Determine if looking for residential or commercial
-    const isLookingForResidential = currentCategory.includes("residen") || 
+    const isLookingForResidential = currentCategory.includes("residen") ||
       /apartment|flat|villa|house|bhk|penthouse|independent|builder\s*floor|row\s*house|farm\s*house/i.test(query);
     const isLookingForCommercial = currentCategory.includes("commercial") ||
       /office|shop|showroom|warehouse|industrial|godown|retail/i.test(query);
-    
+
     // Score and find related properties
     const related = properties
       .filter(p => !filteredIds.has(p._id)) // Exclude already shown properties
       .map(p => {
         let score = 0;
         const { isResidential, isCommercial, propertyTypeName } = getTypeFlags(p);
-        
+
         // Match by property category (highest priority)
         if (isLookingForResidential && isResidential) score += 30;
         if (isLookingForCommercial && isCommercial) score += 30;
-        
+
         // If no specific category detected, give base score to all properties
         if (!isLookingForResidential && !isLookingForCommercial) {
           score += 10; // Base relevance for any property
         }
-        
+
         // Match by listing type (Rent/Sell)
         if (filters.availableFor && p.listingType?.toLowerCase() === filters.availableFor.toLowerCase()) {
           score += 25;
         } else if (!filters.availableFor) {
           score += 10; // No listing type filter, give base score
         }
-        
+
         // Match by city (if different city but same type, still relevant)
         if (filters.city) {
           const pCity = (p.address?.city || p.city || "").toLowerCase();
@@ -847,27 +864,27 @@ const PropertyPage = () => {
         } else {
           score += 5; // No city filter, give small base score
         }
-        
+
         // Match by similar property type name
         if (query) {
           const pTypeLower = propertyTypeName.toLowerCase();
           const pTitle = (p.title || "").toLowerCase();
           const pBhk = (p.bhk || "").toLowerCase();
-          
+
           // Check if property type or title contains any word from the search query
           const queryWords = query.split(/\s+/).filter(w => w.length > 2);
-          const matchesAnyWord = queryWords.some(word => 
+          const matchesAnyWord = queryWords.some(word =>
             pTypeLower.includes(word) || pTitle.includes(word)
           );
-          
+
           if (matchesAnyWord) {
             score += 15;
           }
-          
+
           if (pTypeLower.includes(query) || pTitle.includes(query) || pBhk.includes(query)) {
             score += 15;
           }
-          
+
           // BHK matching - if searching for "2 BHK", "3 BHK" etc. show similar BHK
           const bhkMatch = query.match(/(\d+)\s*bhk/i);
           if (bhkMatch) {
@@ -877,14 +894,14 @@ const PropertyPage = () => {
             else if (Math.abs(propBhk - searchBhk) === 1) score += 10; // Adjacent BHK
           }
         }
-        
+
         // Match by price range proximity
         if (filters.priceRange) {
           const priceInRupees = normalizePrice(p.price, p.priceUnit);
           const isLow = priceInRupees < 5000000;
           const isMid = priceInRupees >= 5000000 && priceInRupees <= 15000000;
           const isHigh = priceInRupees > 15000000;
-          
+
           if (filters.priceRange === "low" && isLow) score += 15;
           else if (filters.priceRange === "mid" && isMid) score += 15;
           else if (filters.priceRange === "high" && isHigh) score += 15;
@@ -893,7 +910,7 @@ const PropertyPage = () => {
             score += 8;
           }
         }
-        
+
         return { ...p, relevanceScore: score };
       })
       .filter(p => p.relevanceScore >= 15) // Include if somewhat relevant
@@ -1543,7 +1560,10 @@ const PropertyPage = () => {
                 zoom={11}
                 className={`w-full h-full z-0 ${pinDropMode ? 'cursor-crosshair' : ''}`}
                 scrollWheelZoom={true}
+                zoomControl={false}
+                attributionControl={false}
               >
+                <ZoomControl position="bottomright" />
                 <TileLayer
                   attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                   url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -1828,12 +1848,12 @@ const PropertyPage = () => {
                 </div>
                 <div>
                   <h2 className="text-lg font-bold text-slate-800">
-                    {filteredProperties.length === 0 
+                    {filteredProperties.length === 0
                       ? "No exact matches found. Here are some related properties"
                       : "Looking for more? Here are a few related properties that might interest you"}
                   </h2>
                   <p className="text-sm text-slate-600 mt-0.5">
-                    {filteredProperties.length === 0 
+                    {filteredProperties.length === 0
                       ? "We couldn't find properties matching your exact criteria, but these might be worth exploring."
                       : `Based on your search for ${filters.search || filters.city || 'properties'}${filters.availableFor ? ` for ${filters.availableFor}` : ''}`}
                   </p>
@@ -1855,7 +1875,7 @@ const PropertyPage = () => {
                       Related
                     </span>
                   </div>
-                  
+
                   <div className="relative h-64 overflow-hidden">
                     <div className="absolute top-3 left-3 z-10">
                       <span className="bg-white/95 backdrop-blur-sm text-slate-800 text-xs font-bold px-3 py-1 rounded-md shadow-sm">
@@ -2082,7 +2102,7 @@ const PropertyPage = () => {
               </div>
             </div>
 
-            <div className="flex-1 overflow-auto">
+            <div className="flex-1 overflow-auto" ref={compareModalRef}>
               <div className="min-w-[640px]">
                 <div
                   className="grid text-xs sm:text-sm"

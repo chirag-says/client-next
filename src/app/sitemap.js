@@ -52,6 +52,12 @@ export default async function sitemap() {
             priority: 0.3,
         },
         {
+            url: `${SITE_URL}/blog`,
+            lastModified: new Date(),
+            changeFrequency: 'daily',
+            priority: 0.8,
+        },
+        {
             url: `${SITE_URL}/login`,
             lastModified: new Date(),
             changeFrequency: 'yearly',
@@ -93,5 +99,28 @@ export default async function sitemap() {
         // Return static pages even if property fetch fails
     }
 
-    return [...staticPages, ...propertyPages];
+    // Fetch all published blog slugs
+    let blogPages = [];
+    try {
+        const apiBase = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:9000';
+        const blogRes = await fetch(`${apiBase}/api/blogs?limit=5000`, {
+            next: { revalidate: 3600 },
+        });
+        if (blogRes.ok) {
+            const blogData = await blogRes.json();
+            const blogs = blogData?.data || [];
+            if (Array.isArray(blogs)) {
+                blogPages = blogs.map((blog) => ({
+                    url: `${SITE_URL}/blog/${blog.slug}`,
+                    lastModified: blog.updatedAt ? new Date(blog.updatedAt) : new Date(),
+                    changeFrequency: 'monthly',
+                    priority: 0.7,
+                }));
+            }
+        }
+    } catch (error) {
+        console.error('Error fetching blogs for sitemap:', error.message);
+    }
+
+    return [...staticPages, ...propertyPages, ...blogPages];
 }

@@ -13,6 +13,15 @@ const nextConfig = {
         hostname: '*.cloudinary.com',
       },
       {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'plus.unsplash.com',
+      },
+
+      {
         protocol: 'http',
         hostname: 'localhost',
       },
@@ -28,7 +37,7 @@ export default withSentryConfig(
 
     // Suppress source map uploading logs during build
     silent: true,
-    org: "dealdirect", // TODO: Update with your Sentry Organization Slug
+    org: "opscores", // Sentry Organization Slug
     project: "dealdirect-frontend", // TODO: Update with your Sentry Project Name
   },
 

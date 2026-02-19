@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { AiOutlineUser, AiOutlineMenu, AiOutlineClose, AiOutlineSearch, AiOutlineHome, AiOutlineInfoCircle, AiOutlinePhone, AiOutlineFileText, AiOutlinePlusCircle, AiOutlineLogin, AiOutlineLogout, AiOutlineSetting, AiOutlineHeart, AiOutlineBell } from "react-icons/ai";
+
 import { FaMapMarkerAlt, FaMicrophone } from "react-icons/fa";
 import { BsBuilding, BsHouseDoor } from "react-icons/bs";
 import { HiOutlineDocumentText } from "react-icons/hi";
@@ -587,7 +588,7 @@ function Navbar() {
                     Agreements
                   </Link>
                   <Link href="/about" className={`${navTextClass} hover:text-red-600 font-medium text-[15px] transition-colors duration-200`}>
-                    About
+                    About Us
                   </Link>
                   <Link href="/contact" className={`${navTextClass} hover:text-red-600 font-medium text-[15px] transition-colors duration-200`}>
                     Contact
@@ -663,7 +664,9 @@ function Navbar() {
                             user.role === 'agent' ? 'bg-purple-100 text-purple-700' :
                               'bg-gray-100 text-gray-600'
                             }`}>
-                            {user.role === 'owner' ? '🏠 Property Owner' : user.role === 'agent' ? '👔 Agent' : '👤 Buyer'}
+                            {user.role === 'owner' ? 'Property Owner' : user.role === 'agent' ? 'Agent' : user.role === 'admin' ? 'Administrator' : 'Buyer'}
+
+
                           </span>
                         </div>
                       </div>
@@ -671,6 +674,7 @@ function Navbar() {
 
                     {/* Menu Items */}
                     <div className="py-2">
+
                       <Link
                         href="/notifications"
                         onClick={() => setIsUserDropdownOpen(false)}
@@ -795,10 +799,13 @@ function Navbar() {
 
             {/* Links */}
             <div className="flex-1 overflow-y-auto py-4 px-3 space-y-2">
+
+
               <Link
                 href="/"
                 onClick={toggleMenu}
-                className="flex items-center gap-4 px-4 py-3 text-slate-700 font-medium rounded-xl hover:bg-red-50 hover:text-red-600 transition"
+                className="flex items-center gap-4 px-4 py-3 text-slate-700 font-medium rounded-xl hover:bg-red-50 hover:text-red-600 transition mobile-nav-item"
+                style={{ animationDelay: '0.05s' }}
               >
                 <AiOutlineHome size={20} />
                 Home
@@ -807,7 +814,8 @@ function Navbar() {
               <Link
                 href="/properties"
                 onClick={toggleMenu}
-                className="flex items-center gap-4 px-4 py-3 text-slate-700 font-medium rounded-xl hover:bg-red-50 hover:text-red-600 transition"
+                className="flex items-center gap-4 px-4 py-3 text-slate-700 font-medium rounded-xl hover:bg-red-50 hover:text-red-600 transition mobile-nav-item"
+                style={{ animationDelay: '0.1s' }}
               >
                 <BsBuilding size={20} />
                 Properties
@@ -820,7 +828,8 @@ function Navbar() {
                     handleRegisterProperty();
                     toggleMenu();
                   }}
-                  className="w-full flex items-center gap-4 px-4 py-3 text-slate-700 font-medium rounded-xl hover:bg-red-50 hover:text-red-600 transition text-left"
+                  className="w-full flex items-center gap-4 px-4 py-3 text-slate-700 font-medium rounded-xl hover:bg-red-50 hover:text-red-600 transition text-left mobile-nav-item"
+                  style={{ animationDelay: '0.15s' }}
                 >
                   <AiOutlinePlusCircle size={20} />
                   Register Property
@@ -830,7 +839,8 @@ function Navbar() {
               {showAgentUpload && (
                 <button
                   type="button"
-                  className="w-full flex items-center gap-4 px-4 py-3 text-slate-700 font-medium rounded-xl hover:bg-red-50 hover:text-red-600 transition text-left"
+                  className="w-full flex items-center gap-4 px-4 py-3 text-slate-700 font-medium rounded-xl hover:bg-red-50 hover:text-red-600 transition text-left mobile-nav-item"
+                  style={{ animationDelay: '0.15s' }}
                   onClick={() => {
                     handleAgentUploadNavigation();
                     if (!isExternalAgentUrl) toggleMenu();
@@ -844,7 +854,8 @@ function Navbar() {
               <Link
                 href="/agreements"
                 onClick={toggleMenu}
-                className="flex items-center gap-4 px-4 py-3 text-slate-700 font-medium rounded-xl hover:bg-red-50 hover:text-red-600 transition"
+                className="flex items-center gap-4 px-4 py-3 text-slate-700 font-medium rounded-xl hover:bg-red-50 hover:text-red-600 transition mobile-nav-item"
+                style={{ animationDelay: '0.2s' }}
               >
                 <AiOutlineFileText size={20} />
                 Agreements
@@ -853,16 +864,18 @@ function Navbar() {
               <Link
                 href="/about"
                 onClick={toggleMenu}
-                className="flex items-center gap-4 px-4 py-3 text-slate-700 font-medium rounded-xl hover:bg-red-50 hover:text-red-600 transition"
+                className="flex items-center gap-4 px-4 py-3 text-slate-700 font-medium rounded-xl hover:bg-red-50 hover:text-red-600 transition mobile-nav-item"
+                style={{ animationDelay: '0.25s' }}
               >
                 <AiOutlineInfoCircle size={20} />
-                About
+                About Us
               </Link>
 
               <Link
                 href="/contact"
                 onClick={toggleMenu}
-                className="flex items-center gap-4 px-4 py-3 text-slate-700 font-medium rounded-xl hover:bg-red-50 hover:text-red-600 transition"
+                className="flex items-center gap-4 px-4 py-3 text-slate-700 font-medium rounded-xl hover:bg-red-50 hover:text-red-600 transition mobile-nav-item"
+                style={{ animationDelay: '0.3s' }}
               >
                 <AiOutlinePhone size={20} />
                 Contact
@@ -901,6 +914,7 @@ function Navbar() {
                   {/* Quick Links */}
                   <div className="space-y-1">
                     <Link
+
                       href="/profile"
                       onClick={toggleMenu}
                       className="flex items-center gap-3 px-3 py-2.5 text-slate-700 font-medium rounded-lg hover:bg-white transition"

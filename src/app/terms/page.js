@@ -1,11 +1,19 @@
-import TermsAndConditions from "./TermsContent";
+import TermsContent from "./TermsContent";
 
 export const metadata = {
     title: "Terms of Use",
     description:
-        "Read the Terms of Use for DealDirect, operated by Agrawal Business Network LLP. Understand the rules governing the use of our property platform.",
+        "Read DealDirect's Terms of Use. Understand the rules and obligations governing your use of India's leading no-broker B2B property platform.",
+    openGraph: {
+        title: "Terms of Use | DealDirect",
+        description: "Terms and conditions governing the use of the DealDirect platform.",
+        url: 'https://dealdirect.in/terms',
+    },
+    alternates: {
+        canonical: 'https://dealdirect.in/terms',
+    },
 };
 
 export default function TermsPage() {
-    return <TermsAndConditions />;
+    return <TermsContent />;
 }

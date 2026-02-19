@@ -23,6 +23,8 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { useRouter, usePathname } from 'next/navigation';
 import api, { authApi, setAuthErrorHandler } from '../utils/api';
 
+
+
 // ============================================
 // AUTH CONTEXT
 // ============================================

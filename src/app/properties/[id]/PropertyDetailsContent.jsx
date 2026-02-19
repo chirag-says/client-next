@@ -482,7 +482,8 @@ const EmiSection = ({
       <input
         type="number"
         value={loanAmount}
-        onChange={(e) => setLoanAmount(+e.target.value)}
+        onChange={(e) => setLoanAmount(e.target.value === '' ? '' : +e.target.value)}
+        placeholder="Enter loan amount"
         className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#0f4fb5]/40 focus:border-[#0f4fb5] outline-none"
       />
     </div>
@@ -494,8 +495,11 @@ const EmiSection = ({
         <input
           type="number"
           step="0.1"
+          min="0.1"
+          max="30"
           value={interestRate}
-          onChange={(e) => setInterestRate(+e.target.value)}
+          onChange={(e) => setInterestRate(e.target.value === '' ? '' : +e.target.value)}
+          placeholder="8.5"
           className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#0f4fb5]/40 focus:border-[#0f4fb5] outline-none"
         />
       </div>
@@ -505,8 +509,11 @@ const EmiSection = ({
         </label>
         <input
           type="number"
+          min="1"
+          max="30"
           value={loanTenure}
-          onChange={(e) => setLoanTenure(+e.target.value)}
+          onChange={(e) => setLoanTenure(e.target.value === '' ? '' : +e.target.value)}
+          placeholder="20"
           className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#0f4fb5]/40 focus:border-[#0f4fb5] outline-none"
         />
       </div>
@@ -515,16 +522,16 @@ const EmiSection = ({
     <div className="mt-5 pt-4 border-t border-slate-100 space-y-2">
       <Row
         label="Monthly EMI"
-        value={emi > 0 ? `₹${emi.toFixed(0).toLocaleString()}` : "0"}
+        value={emi > 0 ? `₹${Math.round(emi).toLocaleString()}` : "—"}
         highlight
       />
       <Row
         label="Total Interest"
-        value={totalInterest > 0 ? `₹${totalInterest.toFixed(0).toLocaleString()}` : "0"}
+        value={totalInterest > 0 ? `₹${Math.round(totalInterest).toLocaleString()}` : "—"}
       />
       <Row
         label="Total Amount"
-        value={totalPayment > 0 ? `₹${totalPayment.toFixed(0).toLocaleString()}` : "0"}
+        value={totalPayment > 0 ? `₹${Math.round(totalPayment).toLocaleString()}` : "—"}
       />
     </div>
   </div>
@@ -549,10 +556,10 @@ const PropertyDetails = ({ initialProperty }) => {
   const [reportReason, setReportReason] = useState("");
   const [reportLoading, setReportLoading] = useState(false);
 
-  // EMI
-  const [loanAmount, setLoanAmount] = useState();
-  const [interestRate, setInterestRate] = useState();
-  const [loanTenure, setLoanTenure] = useState();
+  // EMI — sensible defaults
+  const [loanAmount, setLoanAmount] = useState(0);
+  const [interestRate, setInterestRate] = useState(8.5);
+  const [loanTenure, setLoanTenure] = useState(20);
   const [emi, setEmi] = useState(0);
   const [totalPayment, setTotalPayment] = useState(0);
   const [totalInterest, setTotalInterest] = useState(0);
@@ -590,6 +597,13 @@ const PropertyDetails = ({ initialProperty }) => {
     checkUserInterest();
   }, [id, isAuthenticated]);
 
+  // Initialize EMI loan amount based on property price (80% LTV)
+  useEffect(() => {
+    if (property?.price && property?.listingType !== "Rent") {
+      setLoanAmount(Math.round(property.price * 0.8));
+    }
+  }, [property?.price, property?.listingType]);
+
   useEffect(() => {
     // If initialProperty is provided and matches current ID, don't refetch
     if (initialProperty && initialProperty._id === id) {
@@ -619,12 +633,15 @@ const PropertyDetails = ({ initialProperty }) => {
 
   const buildImageUrl = (img) => {
     if (!img) return "";
+    if (typeof img !== 'string') return ""; // guard against non-string values
     const lower = img.toLowerCase();
     if (lower.startsWith("data:")) return img;
     if (lower.startsWith("http://") || lower.startsWith("https://")) return img;
     if (img.startsWith("/uploads")) return `${API_BASE}${img}`;
     return `${API_BASE}/uploads/${img}`;
   };
+
+  const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=800&auto=format";
 
   const formatCategoryName = (key) =>
     key
@@ -969,30 +986,55 @@ const PropertyDetails = ({ initialProperty }) => {
                   src={
                     imgs[activeImage] ||
                     buildImageUrl(property.image) ||
-                    "https://via.placeholder.com/800x600?text=No+Image"
+                    FALLBACK_IMAGE
                   }
                   alt={property.title}
                   className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = FALLBACK_IMAGE;
+                  }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-900/20 to-transparent" />
 
                 {/* Top-right actions */}
-                <div className="absolute top-4 right-4 flex gap-3">
+                {/* Top-right actions — larger touch targets for mobile */}
+                <div className="absolute top-4 right-4 flex gap-2 sm:gap-3">
                   <button
                     onClick={() => setShowReportModal(true)}
-                    className="bg-white/90 backdrop-blur-sm p-3 rounded-full shadow-[0_18px_40px_rgba(15,32,70,0.25)] hover:scale-110 transition flex items-center justify-center"
+                    className="bg-white/90 backdrop-blur-sm px-3 py-2.5 sm:p-3 rounded-full shadow-lg hover:scale-105 active:scale-95 transition flex items-center gap-1.5 min-w-[44px] min-h-[44px] justify-center"
                     title="Report this property"
+                    aria-label="Report this property"
                   >
-                    <FlagIcon className="w-6 h-6 text-red-600" />
+                    <FlagIcon className="w-5 h-5 text-red-600" />
+                    <span className="text-xs font-semibold text-red-600 sm:hidden">Report</span>
                   </button>
                   <button
-                    onClick={() => {
-                      navigator.clipboard.writeText(window.location.href);
-                      toast.success("Property link copied!");
+                    onClick={async () => {
+                      const shareData = {
+                        title: property.title,
+                        text: `Check out this property: ${property.title} — ₹${formattedPrice}`,
+                        url: window.location.href,
+                      };
+                      if (navigator.share) {
+                        try {
+                          await navigator.share(shareData);
+                        } catch (err) {
+                          if (err.name !== 'AbortError') {
+                            navigator.clipboard.writeText(window.location.href);
+                            toast.success("Property link copied!");
+                          }
+                        }
+                      } else {
+                        navigator.clipboard.writeText(window.location.href);
+                        toast.success("Property link copied!");
+                      }
                     }}
-                    className="bg-white/90 backdrop-blur-sm p-3 rounded-full shadow-[0_18px_40px_rgba(15,32,70,0.25)] hover:scale-110 transition"
+                    className="bg-white/90 backdrop-blur-sm px-3 py-2.5 sm:p-3 rounded-full shadow-lg hover:scale-105 active:scale-95 transition flex items-center gap-1.5 min-w-[44px] min-h-[44px] justify-center"
+                    aria-label="Share this property"
                   >
-                    <ShareIcon className="w-6 h-6 text-slate-700" />
+                    <ShareIcon className="w-5 h-5 text-slate-700" />
+                    <span className="text-xs font-semibold text-slate-700 sm:hidden">Share</span>
                   </button>
                 </div>
 
@@ -1024,6 +1066,10 @@ const PropertyDetails = ({ initialProperty }) => {
                         src={img}
                         alt=""
                         className="h-20 w-28 object-cover"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = FALLBACK_IMAGE;
+                        }}
                       />
                       {allPropertyImages[i]?.category && (
                         <span className="absolute bottom-1 left-1 bg-black/65 text-white text-[10px] px-1.5 py-0.5 rounded">

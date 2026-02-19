@@ -540,15 +540,15 @@ function AgreementGenerator() {
           <div className="p-6 sm:p-8">
             {/* Login Notice */}
             {!isLoggedIn && (
-              <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-center gap-3">
-                <FaLock className="text-amber-500 flex-shrink-0" />
-                <div className="flex-1">
+              <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                <FaLock className="text-amber-500 flex-shrink-0 mt-1 sm:mt-0" />
+                <div className="flex-1 w-full">
                   <p className="text-amber-800 text-sm font-medium">Login Required</p>
                   <p className="text-amber-600 text-xs">Please login to generate agreements.</p>
                 </div>
                 <button
                   onClick={() => router.push("/login?from=/agreements")}
-                  className="px-4 py-2 bg-amber-500 text-white text-sm font-medium rounded-lg hover:bg-amber-600 transition-colors"
+                  className="px-4 py-2 bg-amber-500 text-white text-sm font-medium rounded-lg hover:bg-amber-600 transition-colors w-full sm:w-auto text-center"
                 >
                   Login
                 </button>

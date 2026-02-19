@@ -24,6 +24,17 @@ const removeTrailingSlash = (url) => {
     return url.endsWith('/') ? url.slice(0, -1) : url;
 };
 
+// ============================================
+// SESSION HINT — reads the non-HttpOnly companion cookie
+// set by the backend alongside the HttpOnly session token.
+// If the cookie exists, we have (or recently had) a session.
+// No localStorage needed — fully cookie-based.
+// ============================================
+const hasSessionCookie = () => {
+    if (typeof document === 'undefined') return false;
+    return document.cookie.split(';').some(c => c.trim().startsWith('session_exists='));
+};
+
 // Get base URL from environment or derive from NEXT_PUBLIC_API_BASE
 const getApiBaseUrl = () => {
     // First, check if NEXT_PUBLIC_API_URL is set (includes /api)
@@ -183,15 +194,21 @@ api.interceptors.response.use(
 
             // Handle authentication errors
             if (status === 401) {
-                console.warn('🔒 Session expired or unauthorized');
+                // /users/me returning 401 just means the user is not logged in — this is
+                // expected on every page load for guest users. Skip the warning entirely.
+                const isAuthCheck = response.config?.url?.includes('/users/me');
 
-                // Call the auth error handler if set (AuthContext handles clearing state)
-                if (onAuthError) {
-                    onAuthError({
-                        type: 'UNAUTHORIZED',
-                        message: data?.message || 'Your session has expired. Please log in again.',
-                        requestId: data?.requestId,
-                    });
+                if (!isAuthCheck) {
+                    console.warn('🔒 Session expired or unauthorized');
+
+                    // Call the auth error handler if set (AuthContext handles clearing state)
+                    if (onAuthError) {
+                        onAuthError({
+                            type: 'UNAUTHORIZED',
+                            message: data?.message || 'Your session has expired. Please log in again.',
+                            requestId: data?.requestId,
+                        });
+                    }
                 }
             }
 
@@ -223,14 +240,18 @@ api.interceptors.response.use(
 // ============================================
 
 export const authApi = {
-    // Check current authentication status by fetching user profile
-    // Uses /users/me endpoint - HttpOnly cookies sent automatically
+    // Check current authentication status by fetching user profile.
+    // Only called if the backend-set `session_exists` cookie is present,
+    // eliminating the noisy 401 for guests who have never logged in.
     checkAuth: async () => {
+        if (!hasSessionCookie()) {
+            return { authenticated: false, user: null };
+        }
         try {
             const response = await api.get('/users/me');
             return { authenticated: true, user: response.data.user || response.data };
         } catch {
-            // Session invalid or expired - don't log error, this is expected on first load
+            // Session cookie expired/invalid — companion cookie will be cleared by server
             return { authenticated: false, user: null };
         }
     },

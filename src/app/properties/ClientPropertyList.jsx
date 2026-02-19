@@ -6,6 +6,6 @@ const PropertyListContent = dynamic(() => import('./PropertyListContent'), {
     loading: () => <div className="min-h-screen flex items-center justify-center text-slate-500">Loading properties...</div>
 });
 
-export default function ClientPropertyList() {
-    return <PropertyListContent />;
+export default function ClientPropertyList({ initialProperties, initialCategories }) {
+    return <PropertyListContent initialProperties={initialProperties} initialCategories={initialCategories} />;
 }

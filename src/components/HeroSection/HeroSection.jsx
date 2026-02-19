@@ -205,7 +205,7 @@ const HeroSection = ({ filters, setFilters }) => {
     }
 
     // Default intent since tabs are not shown in this simplified version
-    searchParams.set("intent", "Buy");
+    // searchParams.set("intent", "Buy"); // Removed hardcoded default
 
     router.push(`/properties?${searchParams.toString()}`);
   };
@@ -285,7 +285,9 @@ const HeroSection = ({ filters, setFilters }) => {
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-[700] text-white leading-tight max-w-4xl">
           Buy, Rent & Sell Properties
           <br />
-          <span className="text-red-600">Directly from Owners</span>
+          <span className="bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
+            Directly from Owners
+          </span>
         </h1>
 
         <p className="font-bold text-lg sm:text-xl lg:text-2xl text-gray-200 max-w-3xl">
@@ -334,7 +336,7 @@ const HeroSection = ({ filters, setFilters }) => {
               </div>
 
               {/* Omnibox Suggestions */}
-              {showSuggestions && (
+              {showSuggestions && ((suggestions.length > 0) || isLoadingSuggestions || (recentSearches.length > 0 && (!filters.search || filters.search.length < 2))) && (
                 <div
                   ref={suggestionsRef}
                   className="absolute top-full left-0 right-0 mt-3 bg-white border border-gray-100 rounded-2xl shadow-2xl max-h-[500px] overflow-y-auto z-50 text-left py-2"
@@ -458,11 +460,7 @@ const HeroSection = ({ filters, setFilters }) => {
                         </>
                       )}
 
-                      {suggestions.length === 0 && (!filters.search || filters.search.length < 2) && recentSearches.length === 0 && (
-                        <div className="p-8 text-center text-gray-400">
-                          <p>Start typing to search properties...</p>
-                        </div>
-                      )}
+                      {/* Empty state removed to prevent unwanted popup */}
                     </div>
                   )}
                 </div>

@@ -26,13 +26,18 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files
+# env files (NEVER COMMIT)
 .env
 .env.local
+.env.production
 .env.development.local
 .env.test.local
 .env.production.local
 .env*.local
+
+# build logs
+build.log
+*.log
 
 # vercel
 .vercel
@@ -43,6 +48,10 @@ next-env.d.ts
 
 # sentry
 .sentryclirc
+sentry.client.config.js
+
+# test pages (remove before production)
+src/app/sentry-test/
 
 # misc
 *.pem
