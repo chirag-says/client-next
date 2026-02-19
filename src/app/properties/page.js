@@ -3,6 +3,9 @@ import ClientPropertyList from './ClientPropertyList';
 import { BreadcrumbJsonLd } from '../../components/JsonLd';
 import { ssrFetchAll } from '../../utils/ssrFetch';
 
+// Force dynamic rendering — never pre-render at build time
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
     title: 'Properties for Sale & Rent',
     description: 'Browse thousands of verified properties for sale and rent directly from owners. No brokerage, full transparency.',

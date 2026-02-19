@@ -6,6 +6,9 @@
 
 import { ssrFetch } from '../utils/ssrFetch';
 
+// Force dynamic rendering — sitemap is generated at request time, not build time
+export const dynamic = 'force-dynamic';
+
 const SITE_URL = 'https://dealdirect.in';
 
 export default async function sitemap() {

@@ -4,6 +4,9 @@ import BlogPostContent from './BlogPostContent';
 import { BlogJsonLd } from '../../../components/Blog/BlogJsonLd';
 import { ssrFetch } from '../../../utils/ssrFetch';
 
+// Force dynamic rendering — never pre-render at build time
+export const dynamic = 'force-dynamic';
+
 async function getBlog(slug) {
     const data = await ssrFetch(`/api/blogs/${slug}`, { revalidate: 600 });
     if (data?.success) {

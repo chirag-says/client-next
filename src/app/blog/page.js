@@ -2,6 +2,9 @@ import { Suspense } from 'react';
 import BlogListContent from './BlogListContent';
 import { ssrFetch } from '../../utils/ssrFetch';
 
+// Force dynamic rendering — never pre-render at build time
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
     title: 'Real Estate Tips, Guides & Market Insights | DealDirect Blog',
     description:

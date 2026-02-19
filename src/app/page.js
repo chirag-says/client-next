@@ -2,6 +2,10 @@ import HomeContent from "./HomeContent";
 import { OrganizationJsonLd, WebsiteJsonLd } from "../components/JsonLd";
 import { ssrFetchAll } from "../utils/ssrFetch";
 
+// Force dynamic rendering — never pre-render at build time
+// (backend API is not available during Hostinger build)
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: {
     absolute: "DealDirect — Buy & Sell Properties Without Middlemen",

@@ -3,6 +3,9 @@ import PropertyDetailsContent from './PropertyDetailsContent';
 import { getServerApiBase, ssrFetch } from '../../../utils/ssrFetch';
 import { PropertyJsonLd, BreadcrumbJsonLd } from '../../../components/JsonLd';
 
+// Force dynamic rendering — never pre-render at build time
+export const dynamic = 'force-dynamic';
+
 // Helper to fetch property data with timeout
 async function getProperty(id) {
     if (!id) return null;
