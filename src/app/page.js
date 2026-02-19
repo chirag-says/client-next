@@ -1,7 +1,6 @@
 import HomeContent from "./HomeContent";
 import { OrganizationJsonLd, WebsiteJsonLd } from "../components/JsonLd";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:9000';
+import { ssrFetchAll } from "../utils/ssrFetch";
 
 export const metadata = {
   title: {
@@ -15,39 +14,21 @@ export const metadata = {
   },
 };
 
-// Server-side data fetching for homepage
+// Server-side data fetching with timeout + graceful fallback
 async function getHomeData() {
-  const results = { properties: [], categories: [], propertyTypes: [], latestPosts: [] };
+  const [propsData, catsData, ptData, blogData] = await ssrFetchAll([
+    { path: '/api/properties/property-list', revalidate: 120 },
+    { path: '/api/categories/list-category', revalidate: 3600 },
+    { path: '/api/propertyTypes/list-propertytype', revalidate: 3600 },
+    { path: '/api/blogs?limit=3', revalidate: 600 },
+  ]);
 
-  try {
-    const [propsRes, catsRes, ptRes, blogRes] = await Promise.allSettled([
-      fetch(`${API_BASE}/api/properties/property-list`, { next: { revalidate: 120 } }),
-      fetch(`${API_BASE}/api/categories/list-category`, { next: { revalidate: 3600 } }),
-      fetch(`${API_BASE}/api/propertyTypes/list-propertytype`, { next: { revalidate: 3600 } }),
-      fetch(`${API_BASE}/api/blogs?limit=3`, { next: { revalidate: 600 } }),
-    ]);
-
-    if (propsRes.status === 'fulfilled' && propsRes.value.ok) {
-      const d = await propsRes.value.json();
-      results.properties = d.data || [];
-    }
-    if (catsRes.status === 'fulfilled' && catsRes.value.ok) {
-      const d = await catsRes.value.json();
-      results.categories = d.data || d || [];
-    }
-    if (ptRes.status === 'fulfilled' && ptRes.value.ok) {
-      const d = await ptRes.value.json();
-      results.propertyTypes = d.data || d || [];
-    }
-    if (blogRes.status === 'fulfilled' && blogRes.value.ok) {
-      const d = await blogRes.value.json();
-      results.latestPosts = d.success ? (d.data || []) : [];
-    }
-  } catch (error) {
-    console.error('Error fetching homepage data:', error.message);
-  }
-
-  return results;
+  return {
+    properties: propsData?.data || [],
+    categories: catsData?.data || catsData || [],
+    propertyTypes: ptData?.data || ptData || [],
+    latestPosts: blogData?.success ? (blogData.data || []) : [],
+  };
 }
 
 export default async function HomePage() {

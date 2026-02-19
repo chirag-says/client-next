@@ -4,6 +4,8 @@
  * Next.js automatically serves this at /sitemap.xml
  */
 
+import { ssrFetch } from '../utils/ssrFetch';
+
 const SITE_URL = 'https://dealdirect.in';
 
 export default async function sitemap() {
@@ -71,55 +73,36 @@ export default async function sitemap() {
         },
     ];
 
-    // Fetch all published properties from the backend
+    // Fetch all published properties from the backend (with timeout)
     let propertyPages = [];
-    try {
-        const apiBase = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:9000';
-        const res = await fetch(`${apiBase}/api/properties/list?limit=5000`, {
-            next: { revalidate: 3600 }, // Revalidate sitemap data every 1 hour
-        });
-
-        if (res.ok) {
-            const data = await res.json();
-            const properties = data?.data || data?.properties || data || [];
-
-            if (Array.isArray(properties)) {
-                propertyPages = properties.map((property) => ({
-                    url: `${SITE_URL}/properties/${property._id}`,
-                    lastModified: property.updatedAt
-                        ? new Date(property.updatedAt)
-                        : new Date(),
-                    changeFrequency: 'weekly',
-                    priority: 0.8,
-                }));
-            }
+    const propData = await ssrFetch('/api/properties/list?limit=5000', { revalidate: 3600, timeoutMs: 15000 });
+    if (propData) {
+        const properties = propData?.data || propData?.properties || propData || [];
+        if (Array.isArray(properties)) {
+            propertyPages = properties.map((property) => ({
+                url: `${SITE_URL}/properties/${property._id}`,
+                lastModified: property.updatedAt
+                    ? new Date(property.updatedAt)
+                    : new Date(),
+                changeFrequency: 'weekly',
+                priority: 0.8,
+            }));
         }
-    } catch (error) {
-        console.error('Error fetching properties for sitemap:', error.message);
-        // Return static pages even if property fetch fails
     }
 
-    // Fetch all published blog slugs
+    // Fetch all published blog slugs (with timeout)
     let blogPages = [];
-    try {
-        const apiBase = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:9000';
-        const blogRes = await fetch(`${apiBase}/api/blogs?limit=5000`, {
-            next: { revalidate: 3600 },
-        });
-        if (blogRes.ok) {
-            const blogData = await blogRes.json();
-            const blogs = blogData?.data || [];
-            if (Array.isArray(blogs)) {
-                blogPages = blogs.map((blog) => ({
-                    url: `${SITE_URL}/blog/${blog.slug}`,
-                    lastModified: blog.updatedAt ? new Date(blog.updatedAt) : new Date(),
-                    changeFrequency: 'monthly',
-                    priority: 0.7,
-                }));
-            }
+    const blogData = await ssrFetch('/api/blogs?limit=5000', { revalidate: 3600, timeoutMs: 15000 });
+    if (blogData) {
+        const blogs = blogData?.data || [];
+        if (Array.isArray(blogs)) {
+            blogPages = blogs.map((blog) => ({
+                url: `${SITE_URL}/blog/${blog.slug}`,
+                lastModified: blog.updatedAt ? new Date(blog.updatedAt) : new Date(),
+                changeFrequency: 'monthly',
+                priority: 0.7,
+            }));
         }
-    } catch (error) {
-        console.error('Error fetching blogs for sitemap:', error.message);
     }
 
     return [...staticPages, ...propertyPages, ...blogPages];

@@ -1,7 +1,6 @@
 import { Suspense } from 'react';
 import BlogListContent from './BlogListContent';
-
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:9000';
+import { ssrFetch } from '../../utils/ssrFetch';
 
 export const metadata = {
     title: 'Real Estate Tips, Guides & Market Insights | DealDirect Blog',
@@ -16,20 +15,17 @@ export const metadata = {
     alternates: { canonical: 'https://dealdirect.in/blog' },
 };
 
-// Server-side data fetching for blog listing
+// Server-side data fetching with timeout + graceful fallback
 async function getInitialPosts() {
-    try {
-        const res = await fetch(`${API_BASE}/api/blogs?page=1&limit=9`, {
-            next: { revalidate: 120 },
-        });
-        if (!res.ok) return { posts: [], pagination: { page: 1, pages: 1, total: 0 } };
-        const data = await res.json();
-        if (data.success) {
-            return { posts: data.data || [], pagination: data.pagination || { page: 1, pages: 1, total: 0 } };
-        }
-    } catch (err) {
-        console.error('Error fetching blogs for SSR:', err.message);
+    const data = await ssrFetch('/api/blogs?page=1&limit=9', { revalidate: 120 });
+
+    if (data?.success) {
+        return {
+            posts: data.data || [],
+            pagination: data.pagination || { page: 1, pages: 1, total: 0 },
+        };
     }
+
     return { posts: [], pagination: { page: 1, pages: 1, total: 0 } };
 }
 

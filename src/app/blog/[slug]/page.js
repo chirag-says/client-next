@@ -2,20 +2,14 @@ import { notFound } from 'next/navigation';
 import { Suspense } from 'react';
 import BlogPostContent from './BlogPostContent';
 import { BlogJsonLd } from '../../../components/Blog/BlogJsonLd';
-
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:9000';
+import { ssrFetch } from '../../../utils/ssrFetch';
 
 async function getBlog(slug) {
-    try {
-        const res = await fetch(`${API_BASE}/api/blogs/${slug}`, {
-            next: { revalidate: 600 },
-        });
-        if (!res.ok) return null;
-        const data = await res.json();
-        return data.success ? { blog: data.data, related: data.related } : null;
-    } catch {
-        return null;
+    const data = await ssrFetch(`/api/blogs/${slug}`, { revalidate: 600 });
+    if (data?.success) {
+        return { blog: data.data, related: data.related };
     }
+    return null;
 }
 
 export async function generateMetadata({ params }) {

@@ -1,8 +1,7 @@
 import { Suspense } from 'react';
 import ClientPropertyList from './ClientPropertyList';
 import { BreadcrumbJsonLd } from '../../components/JsonLd';
-
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:9000';
+import { ssrFetchAll } from '../../utils/ssrFetch';
 
 export const metadata = {
     title: 'Properties for Sale & Rent',
@@ -21,27 +20,17 @@ export const metadata = {
     },
 };
 
-// Server-side data fetching for properties listing
+// Server-side data fetching with timeout + graceful fallback
 async function getInitialProperties() {
-    const results = { properties: [], categories: [] };
-    try {
-        const [propsRes, catsRes] = await Promise.allSettled([
-            fetch(`${API_BASE}/api/properties/list?limit=50`, { next: { revalidate: 120 } }),
-            fetch(`${API_BASE}/api/categories/list-category`, { next: { revalidate: 3600 } }),
-        ]);
+    const [propsData, catsData] = await ssrFetchAll([
+        { path: '/api/properties/list?limit=50', revalidate: 120 },
+        { path: '/api/categories/list-category', revalidate: 3600 },
+    ]);
 
-        if (propsRes.status === 'fulfilled' && propsRes.value.ok) {
-            const d = await propsRes.value.json();
-            results.properties = d?.data || d?.properties || d || [];
-        }
-        if (catsRes.status === 'fulfilled' && catsRes.value.ok) {
-            const d = await catsRes.value.json();
-            results.categories = d.data || d || [];
-        }
-    } catch (error) {
-        console.error('Error fetching properties for SSR:', error.message);
-    }
-    return results;
+    return {
+        properties: propsData?.data || propsData?.properties || [],
+        categories: catsData?.data || catsData || [],
+    };
 }
 
 export default async function PropertiesPage() {

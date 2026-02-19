@@ -1,27 +1,12 @@
 import { Suspense } from 'react';
 import PropertyDetailsContent from './PropertyDetailsContent';
-import { getApiBase } from '../../../utils/config';
+import { getServerApiBase, ssrFetch } from '../../../utils/ssrFetch';
 import { PropertyJsonLd, BreadcrumbJsonLd } from '../../../components/JsonLd';
 
-// Helper to fetch property data
+// Helper to fetch property data with timeout
 async function getProperty(id) {
     if (!id) return null;
-    try {
-        const res = await fetch(`${getApiBase()}/api/properties/${id}`, {
-            next: { revalidate: 60 }, // ISR: Cache for 60 seconds
-        });
-
-        if (!res.ok) {
-            if (res.status === 404) return null;
-            console.error(`Failed to fetch property: ${res.status}`);
-            return null;
-        }
-
-        return res.json();
-    } catch (error) {
-        console.error('Error fetching property for metadata:', error);
-        return null;
-    }
+    return await ssrFetch(`/api/properties/${id}`, { revalidate: 60 });
 }
 
 export async function generateMetadata(props) {
@@ -42,8 +27,9 @@ export async function generateMetadata(props) {
     const title = property.title || `${property.bhk || ''} ${property.category?.name || 'Property'} for ${property.listingType} in ${property.city}`;
     const description = property.description?.substring(0, 160) || `Check out this ${property.category?.name} in ${property.city} on DealDirect.`;
 
+    const apiBase = getServerApiBase();
     const images = property.images && property.images.length > 0
-        ? property.images.map(img => img.startsWith('http') ? img : `${getApiBase()}/uploads/${img}`)
+        ? property.images.map(img => img.startsWith('http') ? img : `${apiBase}/uploads/${img}`)
         : [];
 
     return {

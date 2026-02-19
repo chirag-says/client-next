@@ -2,6 +2,14 @@ import { withSentryConfig } from "@sentry/nextjs";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // PRODUCTION: Standalone output for Hostinger Node.js hosting
+  // Creates a self-contained build that doesn't need full node_modules
+  output: 'standalone',
+
+  // Security: Don't expose Next.js in headers
+  poweredByHeader: false,
+
+  // Image optimization
   images: {
     remotePatterns: [
       {
@@ -20,13 +28,15 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'plus.unsplash.com',
       },
-
       {
         protocol: 'http',
         hostname: 'localhost',
       },
     ],
   },
+
+  // Prevent Sentry from causing bundling issues in standalone mode
+  serverExternalPackages: ['@sentry/nextjs'],
 };
 
 export default withSentryConfig(
@@ -38,7 +48,7 @@ export default withSentryConfig(
     // Suppress source map uploading logs during build
     silent: true,
     org: "opscores", // Sentry Organization Slug
-    project: "dealdirect-frontend", // TODO: Update with your Sentry Project Name
+    project: "dealdirect-frontend",
   },
 
   {
@@ -61,4 +71,3 @@ export default withSentryConfig(
     disableLogger: true,
   }
 );
-
