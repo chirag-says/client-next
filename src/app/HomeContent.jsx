@@ -174,19 +174,19 @@ const HomeContent = ({ initialProperties = [], initialCategories = [], initialPr
                 <div className="max-w-7xl mx-auto px-6">
                     <div className="flex flex-col sm:justify-between sm:flex-row  justify-center items-center sm:items-end mb-3">
                         <div>
-                            <h2 className="text-3xl text-center sm:text-left  font-bold text-gray-900">
+                            <h2 className="text-[1.65rem] sm:text-3xl text-center sm:text-left font-bold text-gray-900">
                                 Popular <span className="text-red-600">Properties</span>
                             </h2>
-                            <p className="text-gray-500 mt-2 text-center sm:text-left  max-w-lg">
+                            <p className="text-gray-500 mt-2 text-sm sm:text-base text-center sm:text-left max-w-lg">
                                 Handpicked premium homes and investments across India&apos;s top cities.
                             </p>
                         </div>
 
                         <button
                             onClick={() => router.push('/properties')}
-                            className="text-red-600 py-2 font-semibold hover:text-red-700 transition flex items-center gap-2 pb-1 border-b-2 border-transparent hover:border-red-600"
+                            className="text-red-600 py-2 text-sm sm:text-base font-semibold hover:text-red-700 transition flex items-center gap-1.5 sm:gap-2 pb-1 border-b-2 border-transparent hover:border-red-600"
                         >
-                            View All <FaArrowRight className="text-sm" />
+                            View All <FaArrowRight className="text-xs sm:text-sm" />
                         </button>
                     </div>
 
@@ -248,51 +248,51 @@ const HomeContent = ({ initialProperties = [], initialCategories = [], initialPr
             </section>
 
             {/* 🛠 How Deal Direct Works Section */}
-            <section className="py-16 bg-white relative overflow-hidden">
+            <section className="py-8 sm:py-16 bg-white relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-96 h-96 bg-blue-100/50 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
                 <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-100/50 rounded-full blur-3xl translate-x-1/2 translate-y-1/2"></div>
 
-                <div className="max-w-5xl mx-auto text-center px-6 relative z-10">
-                    <h2 className="text-4xl font-extrabold text-gray-900 mb-3 tracking-tight">
+                <div className="max-w-5xl mx-auto text-center px-4 sm:px-6 relative z-10">
+                    <h2 className="text-2xl sm:text-4xl font-extrabold text-gray-900 mb-2 sm:mb-3 tracking-tight">
                         How Deal Direct Works
                     </h2>
-                    <p className="text-gray-500 text-lg mb-12 max-w-2xl mx-auto leading-relaxed">
+                    <p className="text-gray-500 text-sm sm:text-lg mb-6 sm:mb-12 max-w-2xl mx-auto leading-relaxed">
                         Three simple steps to find your perfect property or sell directly to buyers
                     </p>
                 </div>
 
-                <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10 px-6 pt-12 pb-4 relative z-10">
-                    <div className="group relative bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-blue-200 hover:-translate-y-2">
-                        <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-20 h-20 flex items-center justify-center bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-xl text-4xl text-white group-hover:scale-110 transition-transform duration-300">
+                <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-10 px-4 sm:px-6 pt-6 sm:pt-12 pb-4 relative z-10">
+                    <div className="group relative bg-white rounded-xl sm:rounded-2xl p-5 sm:p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-blue-200 hover:-translate-y-2">
+                        <div className="absolute -top-3 sm:-top-4 left-1/2 -translate-x-1/2 w-14 h-14 sm:w-20 sm:h-20 flex items-center justify-center bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl sm:rounded-2xl shadow-xl text-2xl sm:text-4xl text-white group-hover:scale-110 transition-transform duration-300">
                             <FaSearch />
                         </div>
-                        <div className="mt-10 text-center">
-                            <h3 className="text-2xl font-bold text-gray-900 mb-3">Search Properties</h3>
-                            <p className="text-gray-500 text-base leading-relaxed">
+                        <div className="mt-6 sm:mt-10 text-center">
+                            <h3 className="text-lg sm:text-2xl font-bold text-gray-900 mb-2 sm:mb-3">Search Properties</h3>
+                            <p className="text-gray-500 text-sm sm:text-base leading-relaxed">
                                 Browse thousands of listings directly from property owners.
                             </p>
                         </div>
                     </div>
 
-                    <div className="group relative bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-purple-200 hover:-translate-y-2">
-                        <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-20 h-20 flex items-center justify-center bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl shadow-xl text-4xl text-white group-hover:scale-110 transition-transform duration-300">
+                    <div className="group relative bg-white rounded-xl sm:rounded-2xl p-5 sm:p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-purple-200 hover:-translate-y-2">
+                        <div className="absolute -top-3 sm:-top-4 left-1/2 -translate-x-1/2 w-14 h-14 sm:w-20 sm:h-20 flex items-center justify-center bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl sm:rounded-2xl shadow-xl text-2xl sm:text-4xl text-white group-hover:scale-110 transition-transform duration-300">
                             <FaRegCommentDots />
                         </div>
-                        <div className="mt-10 text-center">
-                            <h3 className="text-2xl font-bold text-gray-900 mb-3">Connect Directly</h3>
-                            <p className="text-gray-500 text-base leading-relaxed">
+                        <div className="mt-6 sm:mt-10 text-center">
+                            <h3 className="text-lg sm:text-2xl font-bold text-gray-900 mb-2 sm:mb-3">Connect Directly</h3>
+                            <p className="text-gray-500 text-sm sm:text-base leading-relaxed">
                                 Message property owners instantly. No intermediaries.
                             </p>
                         </div>
                     </div>
 
-                    <div className="group relative bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-green-200 hover:-translate-y-2">
-                        <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-20 h-20 flex items-center justify-center bg-gradient-to-br from-green-500 to-green-600 rounded-2xl shadow-xl text-4xl text-white group-hover:scale-110 transition-transform duration-300">
+                    <div className="group relative bg-white rounded-xl sm:rounded-2xl p-5 sm:p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-green-200 hover:-translate-y-2">
+                        <div className="absolute -top-3 sm:-top-4 left-1/2 -translate-x-1/2 w-14 h-14 sm:w-20 sm:h-20 flex items-center justify-center bg-gradient-to-br from-green-500 to-green-600 rounded-xl sm:rounded-2xl shadow-xl text-2xl sm:text-4xl text-white group-hover:scale-110 transition-transform duration-300">
                             <FaKey />
                         </div>
-                        <div className="mt-10 text-center">
-                            <h3 className="text-2xl font-bold text-gray-900 mb-3">Close the Deal</h3>
-                            <p className="text-gray-500 text-base leading-relaxed">
+                        <div className="mt-6 sm:mt-10 text-center">
+                            <h3 className="text-lg sm:text-2xl font-bold text-gray-900 mb-2 sm:mb-3">Close the Deal</h3>
+                            <p className="text-gray-500 text-sm sm:text-base leading-relaxed">
                                 Negotiate directly and complete your deal confidently.
                             </p>
                         </div>
@@ -301,34 +301,34 @@ const HomeContent = ({ initialProperties = [], initialCategories = [], initialPr
             </section>
 
             {/* Why Choose Deal Direct Section */}
-            <section className="py-12 bg-white relative overflow-hidden">
+            <section className="py-8 sm:py-12 bg-white relative overflow-hidden">
                 <div className="absolute inset-0 opacity-[0.4]" style={{
                     backgroundImage: 'radial-gradient(circle at 1px 1px, rgb(200 200 200) 1px, transparent 0)',
                     backgroundSize: '40px 40px'
                 }}></div>
 
-                <div className="max-w-6xl mx-auto text-center px-6 relative z-10">
-                    <h2 className="text-4xl font-extrabold text-gray-900 mb-4 tracking-tight">
+                <div className="max-w-6xl mx-auto text-center px-4 sm:px-6 relative z-10">
+                    <h2 className="text-2xl sm:text-4xl font-extrabold text-gray-900 mb-2 sm:mb-4 tracking-tight">
                         Why Choose Deal Direct?
                     </h2>
-                    <p className="text-gray-500 text-lg mb-16 max-w-2xl mx-auto leading-relaxed">
+                    <p className="text-gray-500 text-sm sm:text-lg mb-6 sm:mb-16 max-w-2xl mx-auto leading-relaxed">
                         Experience the benefits of direct property transactions
                     </p>
                 </div>
 
-                <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 px-8 relative z-10">
+                <div className="max-w-7xl mx-auto grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-12 px-4 sm:px-8 relative z-10">
                     {[
-                        { icon: <FaRupeeSign className="w-12 h-12" />, title: "Zero Commission", desc: "Save thousands by connecting directly with owners." },
-                        { icon: <FaRegClock className="w-11 h-11" />, title: "Faster Deals", desc: "Close deals quicker with direct communication." },
-                        { icon: <FaShieldAlt className="w-11 h-11" />, title: "Secure Transactions", desc: "Safe and transparent property transactions." },
-                        { icon: <FaUserFriends className="w-11 h-11" />, title: "Direct Communication", desc: "Chat directly with owners and get instant replies." },
+                        { icon: <FaRupeeSign className="w-7 h-7 sm:w-12 sm:h-12" />, title: "Zero Commission", desc: "Save thousands by connecting directly with owners." },
+                        { icon: <FaRegClock className="w-7 h-7 sm:w-11 sm:h-11" />, title: "Faster Deals", desc: "Close deals quicker with direct communication." },
+                        { icon: <FaShieldAlt className="w-7 h-7 sm:w-11 sm:h-11" />, title: "Secure Transactions", desc: "Safe and transparent property transactions." },
+                        { icon: <FaUserFriends className="w-7 h-7 sm:w-11 sm:h-11" />, title: "Direct Communication", desc: "Chat directly with owners and get instant replies." },
                     ].map((item, i) => (
                         <div key={i} className="group text-center flex flex-col items-center transition-all duration-300 hover:-translate-y-2">
-                            <div className="w-24 h-24 flex items-center justify-center bg-gradient-to-br from-orange-500 to-orange-600 rounded-3xl mb-6 text-4xl text-white shadow-lg group-hover:shadow-2xl group-hover:scale-105 transition-all duration-300">
+                            <div className="w-14 h-14 sm:w-24 sm:h-24 flex items-center justify-center bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl sm:rounded-3xl mb-3 sm:mb-6 text-2xl sm:text-4xl text-white shadow-lg group-hover:shadow-2xl group-hover:scale-105 transition-all duration-300">
                                 {item.icon}
                             </div>
-                            <h3 className="text-xl font-bold text-gray-900 mb-3 tracking-tight">{item.title}</h3>
-                            <p className="text-gray-500 text-[15px] leading-relaxed max-w-[220px]">{item.desc}</p>
+                            <h3 className="text-sm sm:text-xl font-bold text-gray-900 mb-1 sm:mb-3 tracking-tight">{item.title}</h3>
+                            <p className="text-gray-500 text-xs sm:text-[15px] leading-relaxed max-w-[220px]">{item.desc}</p>
                         </div>
                     ))}
                 </div>
